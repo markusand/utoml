@@ -1,0 +1,21 @@
+[project]
+name = "myp-toml"
+description = "Simple TOML parser for MicroPython"
+version = "1.0.0"
+keywords = ["micropython", "toml", "parser"]
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Marc Vilella", email = "mvilella.and@gmail.com"},
+]
+
+[project.urls]
+Repository = "https://github.com/markusand/mpy-toml"
+Issues = "https://github.com/markusand/mpy-toml/issues"
+
+[tool.pylint]
+ignore = ["__pycache__", ".venv"]
+init-hook = "import sys; sys.path.append('typings')"
+
+[tool.black]
+line-length = 100

@@ -1,0 +1,38 @@
+# This is a TOML comment
+title = "TOML Example" # This is another comment
+
+[keys]
+key = "value"
+bare_key = "value"
+bare-key = "value"
+1234 = "value"
+"quoted" = "value"
+nested.keys = "orange"
+
+[strings]
+basic = "I'm a string."
+ip = "127.0.0.1"
+
+[numbers]
+ints = [+99, 42, 0, -17]
+floats = [+1.0, 3.1415, -0.01]
+exps = [5e+22, 1e6, -2e-2, 6.626e-34]
+separator = [445_991_228, 234_323.342]
+
+[dict]
+enabled = true
+ports = [8000, 8001, 8002]
+data = [["delta", "phi"], [3.14]]
+temp_targets = { cpu = 79.5, case = 72.0, true = 843 }
+
+[nested]
+[nested.alpha]
+ip = "10.0.0.1"
+role = "frontend"
+
+[nested.alpha.more]
+hello = "world"
+
+[nested.beta]
+ip = "10.0.0.2"
+role = "backend"
