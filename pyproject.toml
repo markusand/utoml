@@ -15,7 +15,6 @@ Issues = "https://github.com/markusand/mpy-toml/issues"
 
 [tool.pylint]
 ignore = ["__pycache__", ".venv"]
-init-hook = "import sys; sys.path.append('typings')"
 
 [tool.black]
 line-length = 100
