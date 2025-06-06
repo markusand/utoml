@@ -1,6 +1,6 @@
 import unittest
 import os
-from toml import parse, load
+from utoml import parse, load
 
 
 class TestTOMLParser(unittest.TestCase):

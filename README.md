@@ -11,12 +11,12 @@ A simple TOML parser for micropython that converts TOML format to dictionaries.
 
 ## Installation
 
-There are no external dependencies required. You can include the `toml.py` file directly in the root of your project. Compile it to .mpy to save some resources.
+There are no external dependencies required. You can include the `utoml.py` file directly in the root of your project. Compile it to .mpy to save some resources.
 
 If you are creating a custom micropython firmware, you can freeze it to load it from ROM and save even more resources. Add it to the `extmod` directory and load it from the `manifest.py`
 
 ```python
-module('toml.py', base_path="$(MPY_DIR)/extmod", opt=2)
+module('utoml.py', base_path="$(MPY_DIR)/extmod", opt=2)
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ module('toml.py', base_path="$(MPY_DIR)/extmod", opt=2)
 You can parse a TOML string into a Python dictionary by calling the `parse()` function.
 
 ```python
-from toml import parse
+from utoml import parse
 
 toml_content = """
 # Example TOML data
@@ -45,7 +45,7 @@ print(config)
 or you can directly load a file with the `load()` function
 
 ```python
-from toml import load
+from utoml import load
 
 config = load('config.toml')
 ```

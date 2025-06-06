@@ -1,5 +1,5 @@
 [project]
-name = "myp-toml"
+name = "utoml"
 description = "Simple TOML parser for MicroPython"
 version = "1.0.0"
 keywords = ["micropython", "toml", "parser"]
@@ -10,8 +10,8 @@ authors = [
 ]
 
 [project.urls]
-Repository = "https://github.com/markusand/mpy-toml"
-Issues = "https://github.com/markusand/mpy-toml/issues"
+Repository = "https://github.com/markusand/utoml"
+Issues = "https://github.com/markusand/utoml/issues"
 
 [tool.pylint]
 ignore = ["__pycache__", ".venv"]
