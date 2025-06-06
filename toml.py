@@ -4,7 +4,7 @@ Supports basic data types, nested sections, arrays, and inline tables
 """
 
 
-def split_array(value: str) -> list[str]:
+def _split_array(value: str) -> list[str]:
     """Splits an array string, respecting nested brackets."""
     elements = []
     segment = []
@@ -40,8 +40,7 @@ def parse(content: str) -> dict:
             return value[1:-1]
 
         if value.startswith("[") and value.endswith("]"):  # Parse Array
-            return [_parse(part) for part in split_array(value[1:-1])]
-            # return [_parse(i.strip()) for i in value[1:-1].split(',') if i.strip()]
+            return [_parse(part) for part in _split_array(value[1:-1])]
 
         if value.startswith("{") and value.endswith("}"):  # Parse Dict
             return {
