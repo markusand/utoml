@@ -36,7 +36,7 @@ def parse(content: str) -> dict:
         if value.lower() in ("true", "false"):  # Parse Boolean
             return value.lower() == "true"
 
-        if value.startswith('"') and value.endswith('"'):  # Parse String
+        if value[0] in ('"', "'") and value[-1] == value[0]:  # Parse String
             return value[1:-1]
 
         if value.startswith("[") and value.endswith("]"):  # Parse Array

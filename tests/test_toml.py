@@ -18,10 +18,12 @@ class TestTOMLParser(unittest.TestCase):
         content = """
         name = "Toml Parser"
         description = "A simple TOML parser implementation"
+        other = 'Single quoted string'
         """
         result = parse(content)
         self.assertEqual(result["name"], "Toml Parser")
         self.assertEqual(result["description"], "A simple TOML parser implementation")
+        self.assertEqual(result["other"], "Single quoted string")
 
     def test_number(self):
         content = """
