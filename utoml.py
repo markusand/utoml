@@ -60,7 +60,7 @@ def parse(content: str) -> dict:
         # If not any of previous type, return as is (might be a reference or date)
         return value
 
-    for line in content.splitlines():
+    for line in content.split('\n'):
         # Remove comments and whitespace
         line = line.split("#")[0].strip()
         if not line:
