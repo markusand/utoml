@@ -1,7 +1,7 @@
 [project]
 name = "utoml"
 description = "Simple TOML parser for MicroPython"
-version = "1.0.0"
+version = "1.1.0"
 keywords = ["micropython", "toml", "parser"]
 readme = "README.md"
 license = {file = "LICENSE"}

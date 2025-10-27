@@ -82,7 +82,57 @@ def parse(content: str) -> dict:
     return result
 
 
+def serialize(data: dict) -> str:
+    """Serialize a Python dictionary to TOML format."""
+
+    def _serialize(value):
+        """Serialize a Python value to its TOML string representation."""
+        if isinstance(value, bool):
+            return "true" if value else "false"
+
+        if isinstance(value, str):
+            return f'"{value}"'
+
+        if isinstance(value, (int, float)):
+            return str(value)
+
+        if isinstance(value, list):
+            items = [_serialize(item) for item in value]
+            return f"[{', '.join(items)}]"
+
+        if isinstance(value, dict):
+            pairs = [f"{_serialize(k)} = {_serialize(v)}" for k, v in value.items()]
+            return f"{{{', '.join(pairs)}}}"
+
+        return str(value)
+
+    def _serialize_section(section_data, section_path=""):
+        """Serialize a section of the dictionary."""
+        lines = []
+
+        # First, add simple key-value pairs
+        for key, value in section_data.items():
+            if not isinstance(value, dict):
+                lines.append(f"{key} = {_serialize(value)}")
+
+        # Then, add subsections
+        for key, value in section_data.items():
+            if isinstance(value, dict):
+                subsection_path = f"{section_path}.{key}" if section_path else key
+                lines.append(f"\n[{subsection_path}]")
+                lines.extend(_serialize_section(value, subsection_path))
+
+        return lines
+
+    return "\n".join(_serialize_section(data))
+
+
 def load(filename: str) -> dict:
     """Load and parse a TOML file."""
     with open(filename, encoding="utf-8") as file:
         return parse(file.read())
+
+def save(filename: str, data: dict) -> None:
+    """Save a TOML file."""
+    with open(filename, "w", encoding="utf-8") as file:
+        file.write(serialize(data))

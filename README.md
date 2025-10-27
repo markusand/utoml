@@ -1,6 +1,6 @@
-# Micropython TOML Parser
+# Micropython TOML
 
-A simple TOML parser for micropython that converts TOML format to dictionaries.
+A simple TOML parser and serializer for micropython that converts TOML format to dictionaries.
 
 ## Features
 
@@ -26,7 +26,7 @@ You can parse a TOML string into a Python dictionary by calling the `parse()` fu
 ```python
 from utoml import parse
 
-toml_content = """
+toml = """
 # Example TOML data
 [owner]
 name = "John Doe"
@@ -38,7 +38,7 @@ ports = [8000, 8001, 8002]
 settings = { timeout = 30, keep_alive = true }
 """
 
-config = parse(toml_content)
+config = parse(toml)
 print(config)
 ```
 
@@ -48,6 +48,30 @@ or you can directly load a file with the `load()` function
 from utoml import load
 
 config = load('config.toml')
+```
+
+You can serialize Python dictionaries back to TOML format using the `serialize()` function or save directly to a file with `save()`:
+
+```python
+from utoml import serialize, save
+
+config = {
+    "title": "My Application",
+    "debug": True,
+    "database": {
+        "host": "localhost",
+        "port": 5432,
+        "credentials": {"user": "admin", "password": "secret"}
+    },
+    "servers": ["web1", "web2", "db1"]
+}
+
+# Serialize to TOML string
+toml = serialize(config)
+print(toml)
+
+# Save directly to file
+save('output.toml', config)
 ```
 
 ## Tests
