@@ -1,3 +1,5 @@
+"""Tests for utoml TOML parser and serializer."""
+
 import unittest
 import os
 from unittest.mock import patch, mock_open
@@ -5,8 +7,10 @@ from utoml import parse, serialize, load, save
 
 
 class TestTOMLParser(unittest.TestCase):
+    """Test TOML parsing into Python dictionaries."""
 
     def test_boolean(self):
+        """Parse true and false literals into Python booleans."""
         content = """
         bool_true = true
         bool_false = false
@@ -16,6 +20,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["bool_false"], False)
 
     def test_string(self):
+        """Parse double-quoted and single-quoted strings."""
         content = """
         name = "Toml Parser"
         description = "A simple TOML parser implementation"
@@ -27,6 +32,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["other"], "Single quoted string")
 
     def test_number(self):
+        """Parse integers, negative numbers, floats, and scientific notation."""
         content = """
         age = 25
         temp = -17
@@ -40,6 +46,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["scientific"], 0.0000034)
 
     def test_array(self):
+        """Parse flat and nested arrays."""
         content = """
         fruits = ["apple", "banana", "cherry"]
         nested = [[1, 2], [3, 4]]
@@ -49,6 +56,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["nested"], [[1, 2], [3, 4]])
 
     def test_dictionary(self):
+        """Parse inline table syntax into a dictionary."""
         content = """
         person = { name = "John", age = 30 }
         """
@@ -56,6 +64,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["person"], {"name": "John", "age": 30})
 
     def test_section(self):
+        """Parse [section] headers into nested dictionary keys."""
         content = """
         [person]
         name = "John"
@@ -66,6 +75,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["person"]["age"], 30)
 
     def test_nested_sections(self):
+        """Parse dotted [section.subsection] headers into nested dictionaries."""
         content = """
         [person]
         name = "John"
@@ -80,11 +90,13 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["person"]["address"]["city"], "Anytown")
 
     def test_empty_content(self):
+        """Parse empty input into an empty dictionary."""
         content = ""
         result = parse(content)
         self.assertEqual(result, {})
 
     def test_comments(self):
+        """Strip full-line and inline comments during parsing."""
         content = """
         # This is a comment
         name = "Toml Parser"  # Another comment
@@ -93,6 +105,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["name"], "Toml Parser")
 
     def test_invalid_data(self):
+        """Quoted numeric values are preserved as strings, not coerced."""
         content = """
         age = "25"  # Invalid data, should be an integer
         """
@@ -100,6 +113,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["age"], "25")  # Should return the value as a string, no conversion
 
     def test_mixed_types(self):
+        """Parse a document with strings, integers, booleans, and floats together."""
         content = """
         name = "Alice"
         age = 28
@@ -113,6 +127,7 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["height"], 5.7)
 
     def test_array_of_tables(self):
+        """Parse [[key]] entries into a list of dictionaries."""
         content = """
         [[products]]
         name = "Hammer"
@@ -135,6 +150,7 @@ class TestTOMLParser(unittest.TestCase):
         )
 
     def test_array_of_tables_nested(self):
+        """Parse [[parent.key]] entries into a list nested under a section."""
         content = """
         [fruit]
         name = "apple"
@@ -160,6 +176,7 @@ class TestTOMLParser(unittest.TestCase):
         )
 
     def test_array_of_tables_mixed_value_types(self):
+        """Parse [[key]] entries containing strings, integers, and booleans."""
         content = """
         [[sensors]]
         type = "gps"
@@ -178,31 +195,39 @@ class TestTOMLParser(unittest.TestCase):
         )
 
     def test_load_file(self):
+        """Load and parse a TOML file from disk."""
         dir = os.path.dirname(os.path.realpath(__file__))
         file = os.path.join(dir, "test.toml")
         result = load(file)
         self.assertEqual(result["title"], "TOML Example")
-        self.assertEqual(result["products"], [
-            {"name": "Hammer", "sku": 738594937},
-            {"name": "Nail", "sku": 284758393, "color": "gray"},
-        ])
+        self.assertEqual(
+            result["products"],
+            [
+                {"name": "Hammer", "sku": 738594937},
+                {"name": "Nail", "sku": 284758393, "color": "gray"},
+            ],
+        )
 
 
 class TestTOMLSerializer(unittest.TestCase):
+    """Test Python dictionary serialization to TOML format."""
 
     def test_serialize_boolean(self):
+        """Serialize Python booleans into TOML true/false literals."""
         data = {"first": True, "second": False}
         result = serialize(data)
         self.assertIn("first = true", result)
         self.assertIn("second = false", result)
 
     def test_serialize_string(self):
+        """Serialize Python strings into double-quoted TOML strings."""
         data = {"name": "Toml Parser", "description": "A simple TOML parser implementation"}
         result = serialize(data)
         self.assertIn('name = "Toml Parser"', result)
         self.assertIn('description = "A simple TOML parser implementation"', result)
 
     def test_serialize_number(self):
+        """Serialize integers and floats into TOML numeric values."""
         data = {"age": 25, "temp": -17, "pi": 3.1415}
         result = serialize(data)
         self.assertIn("age = 25", result)
@@ -210,12 +235,14 @@ class TestTOMLSerializer(unittest.TestCase):
         self.assertIn("pi = 3.1415", result)
 
     def test_serialize_array(self):
+        """Serialize flat and nested lists into TOML arrays."""
         data = {"fruits": ["apple", "banana", "cherry"], "nested": [[1, 2], [3, 4]]}
         result = serialize(data)
         self.assertIn('fruits = ["apple", "banana", "cherry"]', result)
         self.assertIn("nested = [[1, 2], [3, 4]]", result)
 
     def test_serialize_dictionary(self):
+        """Serialize a nested dictionary into a [section] with key-value pairs."""
         data = {"person": {"name": "John", "age": 30}}
         result = serialize(data)
         self.assertIn("[person]", result)
@@ -223,6 +250,7 @@ class TestTOMLSerializer(unittest.TestCase):
         self.assertIn("age = 30", result)
 
     def test_serialize_nested_sections(self):
+        """Serialize deeply nested dicts into dotted [section.subsection] headers."""
         data = {"person": {"name": "John", "address": {"street": "123 Main St", "city": "Anytown"}}}
         result = serialize(data)
         self.assertIn("[person]", result)
@@ -232,6 +260,7 @@ class TestTOMLSerializer(unittest.TestCase):
         self.assertIn('city = "Anytown"', result)
 
     def test_serialize_mixed_types(self):
+        """Serialize a document with strings, integers, booleans, floats, and arrays."""
         data = {
             "name": "Alice",
             "age": 28,
