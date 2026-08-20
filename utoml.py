@@ -66,6 +66,17 @@ def parse(content: str) -> dict:
         if not line:
             continue
 
+        # Handle array of tables: [[section]]
+        if line.startswith("[[") and line.endswith("]]"):
+            keys = line[2:-2].split(".")
+            section = result
+            for key in keys[:-1]:
+                section = section.setdefault(key, {})
+            table = {}
+            section.setdefault(keys[-1], []).append(table)
+            current_section = table
+            continue
+
         # Handle section headers: [section.subsection]
         if line.startswith("[") and line.endswith("]"):
             section = result

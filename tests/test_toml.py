@@ -112,11 +112,80 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["is_active"], True)
         self.assertEqual(result["height"], 5.7)
 
+    def test_array_of_tables(self):
+        content = """
+        [[products]]
+        name = "Hammer"
+        sku = 738594937
+
+        [[products]]
+        name = "Nail"
+        sku = 284758393
+        color = "gray"
+        """
+        result = parse(content)
+        self.assertEqual(
+            result,
+            {
+                "products": [
+                    {"name": "Hammer", "sku": 738594937},
+                    {"name": "Nail", "sku": 284758393, "color": "gray"},
+                ]
+            },
+        )
+
+    def test_array_of_tables_nested(self):
+        content = """
+        [fruit]
+        name = "apple"
+
+        [[fruit.varieties]]
+        name = "red delicious"
+
+        [[fruit.varieties]]
+        name = "granny smith"
+        """
+        result = parse(content)
+        self.assertEqual(
+            result,
+            {
+                "fruit": {
+                    "name": "apple",
+                    "varieties": [
+                        {"name": "red delicious"},
+                        {"name": "granny smith"},
+                    ],
+                }
+            },
+        )
+
+    def test_array_of_tables_mixed_value_types(self):
+        content = """
+        [[sensors]]
+        type = "gps"
+        baudrate = 9500
+        port = 9
+        rtk = true
+        """
+        result = parse(content)
+        self.assertEqual(
+            result,
+            {
+                "sensors": [
+                    {"type": "gps", "baudrate": 9500, "port": 9, "rtk": True},
+                ]
+            },
+        )
+
     def test_load_file(self):
         dir = os.path.dirname(os.path.realpath(__file__))
         file = os.path.join(dir, "test.toml")
         result = load(file)
         self.assertEqual(result["title"], "TOML Example")
+        self.assertEqual(result["products"], [
+            {"name": "Hammer", "sku": 738594937},
+            {"name": "Nail", "sku": 284758393, "color": "gray"},
+        ])
 
 
 class TestTOMLSerializer(unittest.TestCase):
@@ -144,29 +213,21 @@ class TestTOMLSerializer(unittest.TestCase):
         data = {"fruits": ["apple", "banana", "cherry"], "nested": [[1, 2], [3, 4]]}
         result = serialize(data)
         self.assertIn('fruits = ["apple", "banana", "cherry"]', result)
-        self.assertIn('nested = [[1, 2], [3, 4]]', result)
+        self.assertIn("nested = [[1, 2], [3, 4]]", result)
 
     def test_serialize_dictionary(self):
         data = {"person": {"name": "John", "age": 30}}
         result = serialize(data)
-        self.assertIn('[person]', result)
+        self.assertIn("[person]", result)
         self.assertIn('name = "John"', result)
-        self.assertIn('age = 30', result)
+        self.assertIn("age = 30", result)
 
     def test_serialize_nested_sections(self):
-        data = {
-            "person": {
-                "name": "John",
-                "address": {
-                    "street": "123 Main St",
-                    "city": "Anytown"
-                }
-            }
-        }
+        data = {"person": {"name": "John", "address": {"street": "123 Main St", "city": "Anytown"}}}
         result = serialize(data)
-        self.assertIn('[person]', result)
+        self.assertIn("[person]", result)
         self.assertIn('name = "John"', result)
-        self.assertIn('[person.address]', result)
+        self.assertIn("[person.address]", result)
         self.assertIn('street = "123 Main St"', result)
         self.assertIn('city = "Anytown"', result)
 
@@ -176,13 +237,13 @@ class TestTOMLSerializer(unittest.TestCase):
             "age": 28,
             "is_active": True,
             "height": 5.7,
-            "hobbies": ["reading", "swimming"]
+            "hobbies": ["reading", "swimming"],
         }
         result = serialize(data)
         self.assertIn('name = "Alice"', result)
-        self.assertIn('age = 28', result)
-        self.assertIn('is_active = true', result)
-        self.assertIn('height = 5.7', result)
+        self.assertIn("age = 28", result)
+        self.assertIn("is_active = true", result)
+        self.assertIn("height = 5.7", result)
         self.assertIn('hobbies = ["reading", "swimming"]', result)
 
     def test_round_trip_consistency(self):
@@ -195,11 +256,8 @@ class TestTOMLSerializer(unittest.TestCase):
             "config": {
                 "debug": False,
                 "timeout": 30,
-                "urls": {
-                    "api": "https://api.example.com",
-                    "web": "https://web.example.com"
-                }
-            }
+                "urls": {"api": "https://api.example.com", "web": "https://web.example.com"},
+            },
         }
         serialized = serialize(data)
         parsed = parse(serialized)
@@ -212,10 +270,7 @@ class TestTOMLSerializer(unittest.TestCase):
             "name": "Test Config",
             "debug": True,
             "port": 8080,
-            "database": {
-                "host": "localhost",
-                "user": "admin"
-            }
+            "database": {"host": "localhost", "user": "admin"},
         }
         filename = "test.toml"
 
@@ -230,9 +285,9 @@ class TestTOMLSerializer(unittest.TestCase):
 
         # Verify that the content contains expected TOML structure
         self.assertIn('name = "Test Config"', content)
-        self.assertIn('debug = true', content)
-        self.assertIn('port = 8080', content)
-        self.assertIn('[database]', content)
+        self.assertIn("debug = true", content)
+        self.assertIn("port = 8080", content)
+        self.assertIn("[database]", content)
         self.assertIn('host = "localhost"', content)
         self.assertIn('user = "admin"', content)
 

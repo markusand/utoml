@@ -36,3 +36,12 @@ hello = "world"
 [nested.beta]
 ip = "10.0.0.2"
 role = "backend"
+
+[[products]]
+name = "Hammer"
+sku = 738594937
+
+[[products]]
+name = "Nail"
+sku = 284758393
+color = "gray"
