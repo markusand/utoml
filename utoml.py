@@ -60,7 +60,7 @@ def parse(content: str) -> dict:
         # If not any of previous type, return as is (might be a reference or date)
         return value
 
-    for line in content.split('\n'):
+    for line in content.split("\n"):
         # Remove comments and whitespace
         line = line.split("#")[0].strip()
         if not line:
@@ -150,6 +150,7 @@ def load(filename: str) -> dict:
     """Load and parse a TOML file."""
     with open(filename, encoding="utf-8") as file:
         return parse(file.read())
+
 
 def save(filename: str, data: dict) -> None:
     """Save a TOML file."""
