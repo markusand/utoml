@@ -246,6 +246,22 @@ class TestTOMLSerializer(unittest.TestCase):
         self.assertIn("height = 5.7", result)
         self.assertIn('hobbies = ["reading", "swimming"]', result)
 
+    def test_serialize_array_of_tables(self):
+        """Serialize a list of dictionaries into [[key]] sections."""
+        data = {
+            "products": [
+                {"name": "Hammer", "sku": 738594937},
+                {"name": "Nail", "sku": 284758393, "color": "gray"},
+            ]
+        }
+        result = serialize(data)
+        self.assertIn("[[products]]", result)
+        self.assertIn('name = "Hammer"', result)
+        self.assertIn("sku = 738594937", result)
+        self.assertIn('name = "Nail"', result)
+        self.assertIn('color = "gray"', result)
+        self.assertNotIn("[products]", result.replace("[[products]]", ""))
+
     def test_round_trip_consistency(self):
         """Test that serialize(parse(toml)) produces equivalent structure"""
         data = {
@@ -271,6 +287,10 @@ class TestTOMLSerializer(unittest.TestCase):
             "debug": True,
             "port": 8080,
             "database": {"host": "localhost", "user": "admin"},
+            "sensors": [
+                {"type": "gps", "baudrate": 9500},
+                {"type": "uart", "port": 2},
+            ],
         }
         filename = "test.toml"
 
@@ -290,6 +310,11 @@ class TestTOMLSerializer(unittest.TestCase):
         self.assertIn("[database]", content)
         self.assertIn('host = "localhost"', content)
         self.assertIn('user = "admin"', content)
+        self.assertIn("[[sensors]]", content)
+        self.assertIn('type = "gps"', content)
+        self.assertIn("baudrate = 9500", content)
+        self.assertIn('type = "uart"', content)
+        self.assertIn("port = 2", content)
 
 
 if __name__ == "__main__":

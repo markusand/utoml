@@ -117,21 +117,29 @@ def serialize(data: dict) -> str:
 
         return str(value)
 
+    def _is_array_of_tables(value):
+        """Check if a value is a list of dictionaries (array of tables)."""
+        return isinstance(value, list) and value and all(isinstance(v, dict) for v in value)
+
     def _serialize_section(section_data, section_path=""):
         """Serialize a section of the dictionary."""
         lines = []
 
         # First, add simple key-value pairs
         for key, value in section_data.items():
-            if not isinstance(value, dict):
+            if not isinstance(value, dict) and not _is_array_of_tables(value):
                 lines.append(f"{key} = {_serialize(value)}")
 
         # Then, add subsections
         for key, value in section_data.items():
+            subsection_path = f"{section_path}.{key}" if section_path else key
             if isinstance(value, dict):
-                subsection_path = f"{section_path}.{key}" if section_path else key
                 lines.append(f"\n[{subsection_path}]")
                 lines.extend(_serialize_section(value, subsection_path))
+            elif _is_array_of_tables(value):
+                for table in value:
+                    lines.append(f"\n[[{subsection_path}]]")
+                    lines.extend(_serialize_section(table, subsection_path))
 
         return lines
 
