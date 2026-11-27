@@ -8,6 +8,15 @@ A simple TOML parser and serializer for micropython that converts TOML format to
 - **Nested Sections**: Handles sections in the TOML format, including nested subsections.
 - **Arrays**: Parses arrays while respecting nested brackets.
 - **Inline Tables**: Parses inline tables and converts them to Python dictionaries.
+- **Strings with special characters**: `#`, `,` and `=` inside quoted strings are kept, also within arrays and inline tables.
+
+## Limitations
+
+utoml covers a practical subset of TOML 1.0, kept small for micropython:
+
+- Escaped quotes (`\"`) inside strings are not supported.
+- Arrays and inline tables must fit on a single line.
+- Booleans are case-insensitive (`True` is accepted) and duplicate keys keep the last value instead of raising an error.
 
 ## Installation
 

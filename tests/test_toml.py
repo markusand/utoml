@@ -31,6 +31,15 @@ class TestTOMLParser(unittest.TestCase):
         self.assertEqual(result["description"], "A simple TOML parser implementation")
         self.assertEqual(result["other"], "Single quoted string")
 
+    def test_string_special_chars(self):
+        """Keep `#`, `,` and `=` inside strings, also in arrays and inline tables (issue #1)."""
+        self.assertEqual(parse('a = "x # not a comment"'), {"a": "x # not a comment"})
+        self.assertEqual(parse('a = "http://e.com/#frag" # comment'), {"a": "http://e.com/#frag"})
+        self.assertEqual(parse('a = ["x,y", "z"]'), {"a": ["x,y", "z"]})
+        self.assertEqual(parse('a = {k = "x,y", j = 1}'), {"a": {"k": "x,y", "j": 1}})
+        self.assertEqual(parse('a = {k = "x=y"}'), {"a": {"k": "x=y"}})
+        self.assertEqual(parse("a = {k = [1, 2], j = 'b,c'}"), {"a": {"k": [1, 2], "j": "b,c"}})
+
     def test_number(self):
         """Parse integers, negative numbers, floats, and scientific notation."""
         content = """

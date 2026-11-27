@@ -4,24 +4,26 @@ Supports basic data types, nested sections, arrays, and inline tables
 """
 
 
-def _split_array(value: str) -> list[str]:
-    """Splits an array string, respecting nested brackets."""
-    elements = []
-    segment = []
-    depth = 0
+def _split(value: str, sep: str) -> list[str]:
+    """Split on sep, ignoring separators inside strings and nested brackets."""
+    # ponytail: no escaped quotes (\") inside strings
+    parts, start, depth, quote = [], 0, 0, None
 
-    for char in value:
-        depth += 1 if char == "[" else -1 if char == "]" else 0
-        if char == "," and depth == 0:
-            elements.append("".join(segment).strip())
-            segment = []
-            continue
-        segment.append(char)
+    for i, char in enumerate(value):
+        if quote:
+            quote = None if char == quote else quote
+        elif char in "\"'":
+            quote = char
+        elif char in "[{":
+            depth += 1
+        elif char in "]}":
+            depth -= 1
+        elif char == sep and depth == 0:
+            parts.append(value[start:i].strip())
+            start = i + 1
 
-    if segment:
-        elements.append("".join(segment).strip())
-
-    return elements
+    parts.append(value[start:].strip())
+    return parts
 
 
 def parse(content: str) -> dict:
@@ -40,12 +42,12 @@ def parse(content: str) -> dict:
             return value[1:-1]
 
         if value.startswith("[") and value.endswith("]"):  # Parse Array
-            return [_parse(part) for part in _split_array(value[1:-1])]
+            return [_parse(part) for part in _split(value[1:-1], ",") if part]
 
         if value.startswith("{") and value.endswith("}"):  # Parse Dict
             return {
                 _parse(k.strip()): _parse(v.strip())
-                for k, v in (pair.split("=") for pair in value[1:-1].split(",") if "=" in pair)
+                for k, v in (pair.split("=", 1) for pair in _split(value[1:-1], ",") if "=" in pair)
             }
 
         # Parse numbes (try integer first, then float)
@@ -62,7 +64,7 @@ def parse(content: str) -> dict:
 
     for line in content.split("\n"):
         # Remove comments and whitespace
-        line = line.split("#")[0].strip()
+        line = _split(line, "#")[0]
         if not line:
             continue
 
